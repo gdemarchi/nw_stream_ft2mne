@@ -3,8 +3,10 @@ function [mne_epochs]=nw_ftpreproc2mne(preprocdata)
 
 ch_names = py.list(preprocdata.label');
 
-tmp=cellfun(@(x) strrep(x(1:end), 'megplanar', 'grad'), preprocdata.grad.chantype,'UniformOutput',false);
+chantype=ft_chantype(preprocdata.label);
+tmp=cellfun(@(x) strrep(x(1:end), 'megplanar', 'grad'), chantype,'UniformOutput',false);
 tmp=cellfun(@(x) strrep(x(1:end), 'megmag', 'mag'), tmp,'UniformOutput',false);
+
 ch_types = py.list(tmp');
 
 sfreq=mat2nparray(preprocdata.fsample);
