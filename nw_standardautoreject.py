@@ -12,6 +12,7 @@ def runautoreject(epochs, fiffile, senstype, n_interpolates = np.array([1, 4, 32
     
     raw = mne.io.read_raw_fif(fiffile, preload=True)
     raw.pick_types(meg=True)
+    raw.info['projs'] = list()
     epochs.info=raw.info #required since no channel infos
     del raw
       

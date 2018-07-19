@@ -1,22 +1,22 @@
-pyversion('/Users/gianpaolo/anaconda3/envs/mne/bin/python')
+pyversion('/Users/b1019548/anaconda3/bin/python')
 
 %%
 restoredefaultpath
 clear all
-addpath('~/git/obob_ownft/');
+addpath('~/Documents/MATLAB/obob_ownft/');
 obob_init_ft
 
-addpath('/Users/gianpaolo/Documents/git/nw_stream_ft2mne/');
+addpath('~/Documents/MATLAB/nw_stream_ft2mne/');
 nw_stream_ft2mne_init
 %%
-fileinfo='/Users/gianpaolo/Downloads/TMPWORK/180517/19910612CRKE_block01_2Hz_random.fif';
+fileinfo='/Users/b1019548/Desktop/Data_Sternberg/jens_L.fif';
 
 cfg             = [];
 cfg.channel = 'MEG';
 cfg.dataset     = fileinfo;
-%cfg.continuous  = '~/Documents/MATLAB/nw_stream_ft2mne/jens_L.fif';
-cfg.hpfilter='yes';
-cfg.hpfreq=1;
+cfg.continuous  = 'yes';
+% cfg.hpfilter='yes';
+% cfg.hpfreq=1;
 data = ft_preprocessing(cfg);
 
 cfg          = [];
@@ -38,9 +38,9 @@ for ii= 1:length(data.time)
 end
 
 cfg=[];
-cfg.resamplefs=100;
+cfg.resamplefs=128;
 
-datads=ft_resampledata(cfg, data);
+data=ft_resampledata(cfg, data);
 data.sampleinfo=[origtrl(:,1), origtrl(:,2)];
 
 
@@ -48,9 +48,30 @@ data.sampleinfo=[origtrl(:,1), origtrl(:,2)];
 mne_epochs=nw_ftpreproc2mne(data);
 
 %%
-art_log =py.nw_standardautoreject.runautoreject(mne_epochs,py.str('grad'));
+art_log =py.nw_standardautoreject.runautoreject(mne_epochs,py.str(fileinfo),py.str('grad'));
 
+%%
+bad_epoch_ind=nparray2mat(art_log.bad_epochs);
 
- alllear%% c
- 
+%% Make artefact definition
+
+cfg             = [];
+cfg.channel = 'MEG';
+cfg.dataset     = fileinfo;
+cfg.continuous  = 'yes';
+% cfg.hpfilter='yes';
+% cfg.hpfreq=1;
+data = ft_preprocessing(cfg);
+
+cfg=[];
+cfg.inputfile=fileinfo;
+data=obob_apply_ssp(cfg,data);
+
+%%
+cfg=[];
+cfg.artfctdef.autoreject.artifact=origtrl(find(bad_epoch_ind==1),1:2);
+ft_databrowser(cfg, data);
+
+%%
+
 
