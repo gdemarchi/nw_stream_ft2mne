@@ -10,6 +10,10 @@ addpath('~/Documents/MATLAB/nw_stream_ft2mne/');
 nw_stream_ft2mne_init
 %%
 fileinfo='/Users/b1019548/Desktop/Data_Sternberg/jens_L.fif';
+<<<<<<< HEAD
+=======
+%fileinfo='/Users/b1019548/mne_data/MNE-sample-data/MEG/sample/sample_audvis_filt-0-40_raw.fif';
+>>>>>>> a4d67a273b6077e8b8f3930a0e3c8f62b551b4a5
 
 cfg             = [];
 cfg.channel = 'MEG';
@@ -28,6 +32,7 @@ data.trialinfo=ones(length(data.trial),1);
 origtrl=data.cfg.trl;
 
 %%
+<<<<<<< HEAD
 cfg=[];
 cfg.inputfile=fileinfo;
 data=obob_apply_ssp(cfg,data);
@@ -43,12 +48,66 @@ cfg.resamplefs=128;
 data=ft_resampledata(cfg, data);
 data.sampleinfo=[origtrl(:,1), origtrl(:,2)];
 
+=======
+% cfg=[];
+% cfg.inputfile=fileinfo;
+% data=obob_apply_ssp(cfg,data);
+
+%%
+for ii= 1:length(data.time)
+    data.time{ii}=linspace(0,1,size(data.trial{1},2));
+end
+
+%% downsample to speed up --> implement in MNE
+% 
+% cfg=[];
+% cfg.resamplefs=128;
+% 
+% data=ft_resampledata(cfg, data);
+
+%%
+cfg=[]; 
+cfg.gradscale=.04;
+cfg.preproc.hpfilter='yes';
+cfg.preproc.hpfreq=1;
+cfg.preproc.hpfilttype='firws';
+data=ft_rejectvisual(cfg, data);
+
+data.sampleinfo=[origtrl(:,1), origtrl(:,2)];
+
+%badsens=py.list({py.str('MEG2443'),py.str('MEG1711')});
+badsens=py.list({});
+
+%%
+cfg=[];
+cfg.hpfilter='yes';
+cfg.hpfreq=1;
+cfg.hpfilttype='fir';
+data4ica=ft_preprocessing(cfg, data);
+
+data4ica=rmfield(data4ica,'elec');
+data4ica.hdr=rmfield(data4ica.hdr,'elec');
+
+cfg=[];
+cfg.neigh_method='template';
+cfg.load_default=1;
+data4ica = obob_fixchannels(cfg, data4ica);
+
+cfg=[];
+cfg.runica.pca=50;
+comp=ft_componentanalysis(cfg, data4ica);
+
+>>>>>>> a4d67a273b6077e8b8f3930a0e3c8f62b551b4a5
 
 %% CONVERT PREPROC STRUCTURE TO MNE
 mne_epochs=nw_ftpreproc2mne(data);
 
 %%
+<<<<<<< HEAD
 art_log =py.nw_standardautoreject.runautoreject(mne_epochs,py.str(fileinfo),py.str('grad'));
+=======
+art_log =py.nw_standardautoreject.runautoreject(mne_epochs,py.str(fileinfo),py.str('grad'),badsens);
+>>>>>>> a4d67a273b6077e8b8f3930a0e3c8f62b551b4a5
 
 %%
 bad_epoch_ind=nparray2mat(art_log.bad_epochs);
@@ -59,8 +118,13 @@ cfg             = [];
 cfg.channel = 'MEG';
 cfg.dataset     = fileinfo;
 cfg.continuous  = 'yes';
+<<<<<<< HEAD
 % cfg.hpfilter='yes';
 % cfg.hpfreq=1;
+=======
+cfg.hpfilter='yes';
+cfg.hpfreq=1;
+>>>>>>> a4d67a273b6077e8b8f3930a0e3c8f62b551b4a5
 data = ft_preprocessing(cfg);
 
 cfg=[];
@@ -69,6 +133,11 @@ data=obob_apply_ssp(cfg,data);
 
 %%
 cfg=[];
+<<<<<<< HEAD
+=======
+cfg.channel={'all','-megmag'};
+cfg.viewmode='vertical';
+>>>>>>> a4d67a273b6077e8b8f3930a0e3c8f62b551b4a5
 cfg.artfctdef.autoreject.artifact=origtrl(find(bad_epoch_ind==1),1:2);
 ft_databrowser(cfg, data);
 
